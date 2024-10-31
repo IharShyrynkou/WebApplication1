@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Models
+﻿using AutoMapper;
+
+namespace WebApplication1.Models
 {
     public class ProductDTO
     {
@@ -10,5 +12,18 @@
         public string Destination { get; set; }
         public string Supplier { get; set; }
 
+    }
+
+    public class ProductResponseMappingProfile : Profile
+    {
+        public ProductResponseMappingProfile()
+        {
+            CreateMap<ProductDTO, ProductResponse>()
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                    .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
+                    .ForMember(dest => dest.Supplier, opt => opt.MapFrom(src => src.Supplier))
+                    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                    .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Destination)).ReverseMap();
+        }
     }
 }

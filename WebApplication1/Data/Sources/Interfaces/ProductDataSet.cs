@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using System;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data

@@ -1,15 +1,22 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
+using WebApplication1.Data.Sources.Interfaces;
 using WebApplication1.Models;
 
 namespace WebApplication1.Data.Data_Sources
 {
-    public static partial class JsonRepositoryConfiguration
+    /// <summary>
+    /// Source Class Json Configuration
+    /// </summary>
+    public static partial class JsonDataSourceConfiguration
     {
         public const string TheBigGuyDataFilePath = "TheBigGuy.json";
+        public const string TheBigGuySourceCode = "TheBigGuy";
     }
 
-    public static class TheBigGuySourceRegistrator
+    /// <summary>
+    /// Source Classs Registration module
+    /// </summary>
+    public static class TheBigGuyDataSourceRegistrator
     {
         public static IServiceCollection AddTheBigGuyRepository(this IServiceCollection services)
             => services
@@ -17,34 +24,69 @@ namespace WebApplication1.Data.Data_Sources
                 .AddScoped<ProductDataSet, TheBigGuyDataSource>();
     }
 
-    public class TheBigGuyDataSource : ProductDataSet
+    /// <summary>
+    /// Source Class DataSource Configuration
+    /// </summary>
+    public class TheBigGuyDataSource : ProductFileDataSet<TheBigGuyData, TheBigGuyProductData>
     {
-        public Type MapType => typeof(TheBigGuyDataMappingProfile);
-        public TheBigGuyDataSource(IMapper mapper) : base(mapper){ }
+        public TheBigGuyDataSource(IMapper mapper, ILogger<TheBigGuyDataSource> logger, IConfiguration config)
+            : base(mapper, logger, config) { }
 
-        public override ProductDTO[] Products => MapJson();
+        protected override string DefaultFileName => JsonDataSourceConfiguration.TheBigGuyDataFilePath;
+        protected override string SourceCode => JsonDataSourceConfiguration.TheBigGuySourceCode;
 
-        private ProductDTO[] MapJson()
-        {
-            var bigGuyData = GenericSource.LoadJsonFile<TheBigGuy>(JsonRepositoryConfiguration.TheBigGuyDataFilePath);
-
-            return _mapper.Map<ProductDTO[]>(bigGuyData.ProductData);
-        }
+        protected override Func<TheBigGuyData, TheBigGuyProductData[]> GetDataFunction => (data) => data.ProductData;
     }
 
+    /// <summary>
+    /// Source Class Mapping Profile
+    /// </summary>
     public class TheBigGuyDataMappingProfile : Profile
     {
         public TheBigGuyDataMappingProfile()
         {
-            CreateMap<Productdata, ProductDTO>()
+            CreateMap<TheBigGuyProductData, ProductDTO>()
                     .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.productDetailData.id))
-                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src=> src.productDetailData.name))
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.productDetailData.name))
                     .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.price.amount))
                     .ForMember(dest => dest.Capacity, opt => opt.MapFrom(src => src.productDetailData.capacity))
-                    .ForMember(dest => dest.Supplier, opt => opt.MapFrom(src => JsonRepositoryConfiguration.TheBigGuyDataFilePath))
+                    .ForMember(dest => dest.Supplier, opt => opt.MapFrom(src => JsonDataSourceConfiguration.TheBigGuyDataFilePath))
                     .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.productDetailData.productDescription))
-                    .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => JsonRepositoryConfiguration.JsonDestination)).ReverseMap();
-                    ;
+                    .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => JsonDataSourceConfiguration.JsonDestination)).ReverseMap();
         }
+    }
+
+
+    /// <summary>
+    /// Source Class
+    /// </summary>
+    public class TheBigGuyData
+    {
+        public TheBigGuyProductData[] ProductData { get; set; }
+    }
+
+    /// <summary>
+    /// Source Class Schema
+    /// </summary>
+    public class TheBigGuyProductData
+    {
+        public TheBigGuyProductDataDetails productDetailData { get; set; }
+        public TheBigGuyProductDataPrice price { get; set; }
+        public string[] photos { get; set; }
+    }
+
+    public class TheBigGuyProductDataDetails
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string productDescription { get; set; }
+        public float averageStars { get; set; }
+        public int capacity { get; set; }
+    }
+
+    public class TheBigGuyProductDataPrice
+    {
+        public float amount { get; set; }
+        public float appliedDiscount { get; set; }
     }
 }

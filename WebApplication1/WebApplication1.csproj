@@ -16,9 +16,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Models\Json\TheBigGuy.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
+    <Content Update="Resources\Data Sources\SomeOtherGuyData.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\Data Sources\TheBigGuy.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Resources\Data Sources\TheTourGuyData.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
